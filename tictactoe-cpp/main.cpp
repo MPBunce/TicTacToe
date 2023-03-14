@@ -4,8 +4,8 @@ using namespace std;
 int main(){
 
 
-    printf("\nhello\n");
-    return(0)
+    printf("\nhello\n\n");
+    return(0);
 
 
 }
