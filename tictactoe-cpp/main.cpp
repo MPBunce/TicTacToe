@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <cctype>
+#include <stdlib.h> 
 using namespace std;
 
 //Functions
@@ -34,6 +35,8 @@ vector<vector<char>> getUserInput( vector<vector<char>> theMatrix, char inputCha
 
         cout << "\nEnter where you want to place: \n";
         cin >> userChoice;
+
+        userChoice = toupper(userChoice);
 
         switch (userChoice){
             case 1:
@@ -84,15 +87,148 @@ vector<vector<char>> getUserInput( vector<vector<char>> theMatrix, char inputCha
 
 vector<vector<char>> computerRandom(vector<vector<char>> theMatrix, char inputChar){
     
+    vector<char> avaliablePositions;
+    int randomPosition = 0;
+
+    for(int i = 0; i < theMatrix.size(); ++i){
+        for(int j = 0; j < theMatrix.size(); ++j){
+            if(theMatrix[i][j] != 'X' && theMatrix[i][j] != 'O'){
+                avaliablePositions.push_back(theMatrix[i][j]);
+            }
+        }
+    }
+
+    for(int i = 0; i < avaliablePositions.size(); ++i){
+         cout << avaliablePositions[i] << "\n";
+    }
+
+    randomPosition = rand() % avaliablePositions.size() + 1;
+    
+    cout << "\nPossible Random Position  :  " << randomPosition << "\n";
+
+    for(int i = 0; i < theMatrix.size(); ++i){
+        for(int j = 0; j < theMatrix.size(); ++j){
+            if(theMatrix[i][j] == avaliablePositions[randomPosition-1]){
+                theMatrix[i][j] = inputChar;
+            }
+        }
+    }
 
 
     return theMatrix;
 
 }
 
-bool isWinner( vector<vector<char>> theMatrix ){
+int isWinner( vector<vector<char>> theMatrix, char inputChar ){
 
-    return false;
+    //return 0 for nothjing
+    //return 1 for X win
+    //return 2 for O win
+    //return 3 for tie!
+    vector<char> avaliablePositions;
+
+    //Check Tie
+    for(int i = 0; i < theMatrix.size(); ++i){
+        for(int j = 0; j < theMatrix.size(); ++j){
+            if(theMatrix[i][j] != 'X' && theMatrix[i][j] != 'O'){
+                avaliablePositions.push_back(theMatrix[i][j]);
+            }
+        }
+    }
+
+    if(avaliablePositions.size() < 1){
+        return 3;
+    }
+
+    cout << "entering winner\n";
+
+    for(int i = 0; i < theMatrix.size(); ++i){
+        if(theMatrix[i][0] == theMatrix[i][1] && theMatrix[i][1] == theMatrix[i][2]){
+            if(inputChar = 'X'){
+                return 1;
+            }else{
+                return 2;
+            }
+
+        }
+    }
+
+    for(int i = 0; i < theMatrix.size(); ++i){
+        if(theMatrix[0][i] == theMatrix[1][i] && theMatrix[1][i] == theMatrix[2][i]){
+            if(inputChar = 'X'){
+                return 1;
+            }else{
+                return 2;
+            }
+
+        }
+    }
+
+    if( theMatrix[0][0] == inputChar && theMatrix[1][1] == inputChar && theMatrix[2][2] == inputChar ){
+        
+        if(inputChar = 'X'){
+            return 1;
+        }else{
+            return 2;
+        }
+
+    }else if( theMatrix[0][2]  == inputChar && theMatrix[1][1]  == inputChar && theMatrix[2][0] == inputChar ){
+
+        if(inputChar = 'X'){
+            return 1;
+        }else{
+            return 2;
+        }
+
+    }else{
+
+        return 0;
+
+    }
+
+
+}
+
+vector<vector<char>> computerMinMax(vector<vector<char>> theMatrix, char inputChar){
+
+    int x = 0;
+    int y = 0;
+    int score = 0;
+    int bestScore = -100;
+
+    char tempChar = ' ';
+
+    for(int i = 0; i < theMatrix.size(); ++i){
+        for(int j = 0; i <theMatrix.size(); ++i){
+            if(theMatrix[i][j] != 'X' || theMatrix[i][j] != 'O'){
+
+                tempChar = theMatrix[i][j];
+                theMatrix[i][j] = inputChar;
+                //score = minMax(theMatrix, 0, true);
+                theMatrix[i][j] = tempChar;
+
+                if( score > bestScore){
+                    x = i;
+                    y = j;
+                }
+
+
+            }
+        }
+    }
+
+    //SET THE BEST MOVE HERE xdxdxd
+
+
+
+    return theMatrix;
+}
+
+int minMax(vector<vector<char>> theMatrix, int depth, bool maxThisPlayer){
+
+
+
+
 }
 
 //Main
@@ -107,6 +243,7 @@ int main(){
 
     char easyOrHard = ' ';
     bool gameFlag = true;
+    int winner = 15;
     char inputX = 'X';
     char inputO = 'O';
 
@@ -116,7 +253,7 @@ int main(){
 
     easyOrHard = toupper(easyOrHard);
 
-    cout<< "\n" << easyOrHard << "\n";
+    cout<< "\n";
 
     if(easyOrHard == 'E'){
         while(gameFlag){
@@ -127,13 +264,65 @@ int main(){
             //get user input and apply change
             gameBoard = getUserInput( gameBoard, inputX );
 
+            //check if there is a row
+            winner = isWinner(gameBoard, inputX);
+
+            switch (winner){
+                case 1:
+                    cout << "\nX wins!";
+                    printBoard(gameBoard);
+                    cout << "Game over!";
+                    gameFlag = false;
+                    break;
+                case 2:
+                    cout << "\nO wins!";
+                    printBoard(gameBoard);
+                    cout << "Game over!";
+                    gameFlag = false;
+                    break;
+                case 3:
+                    cout << "\nTie Game?! HOW!";
+                    printBoard(gameBoard);
+                    cout << "Game over!";
+                    gameFlag = false;
+                    break;
+                default:
+                    break;
+            }
+
             //computer makes change
             gameBoard = computerRandom( gameBoard, inputO );
 
             //check if there is a row
-            gameFlag = isWinner(gameBoard);
+            winner = isWinner(gameBoard, inputO);
+
+            switch (winner){
+                case 1:
+                    cout << "\nX wins!";
+                    printBoard(gameBoard);
+                    cout << "Game over!";
+                    gameFlag = false;
+                    break;
+                case 2:
+                    cout << "\nO wins!";
+                    printBoard(gameBoard);
+                    cout << "Game over!";
+                    gameFlag = false;
+                    break;
+                case 3:
+                    cout << "\nTie Game?! HOW!";
+                    printBoard(gameBoard);
+                    cout << "Game over!";
+                    gameFlag = false;
+                    break;
+                default:
+                    break;
+            }
+
 
         }
+
+
     }else if(easyOrHard == 'H'){
         while(gameFlag){
 
@@ -150,7 +339,7 @@ int main(){
     }else{
         cout << "\nIncorrect input, bye!";
     }
-    
+
     return(0);
 
 }
