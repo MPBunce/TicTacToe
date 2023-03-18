@@ -98,17 +98,17 @@ vector<vector<char>> computerRandom(vector<vector<char>> theMatrix, char inputCh
         }
     }
 
-    for(int i = 0; i < avaliablePositions.size(); ++i){
-         cout << avaliablePositions[i] << "\n";
-    }
+    // for(int i = 0; i < avaliablePositions.size(); ++i){
+    //     cout << avaliablePositions[i] << "Random Check"<< (rand() % avaliablePositions.size())<< "\n";
+    // }
 
-    randomPosition = rand() % avaliablePositions.size() + 1;
+    randomPosition = (rand() % avaliablePositions.size());
     
-    cout << "\nPossible Random Position  :  " << randomPosition << "\n";
+    // cout << "\nPossible Random Position  :  " << randomPosition << "\n";
 
     for(int i = 0; i < theMatrix.size(); ++i){
         for(int j = 0; j < theMatrix.size(); ++j){
-            if(theMatrix[i][j] == avaliablePositions[randomPosition-1]){
+            if(theMatrix[i][j] == avaliablePositions[randomPosition]){
                 theMatrix[i][j] = inputChar;
             }
         }
@@ -127,6 +127,51 @@ int isWinner( vector<vector<char>> theMatrix, char inputChar ){
     //return 3 for tie!
     vector<char> avaliablePositions;
 
+    //No Tie did someone win?
+    for(int i = 0; i < theMatrix.size(); ++i){
+        if(theMatrix[i][0] == theMatrix[i][1] && theMatrix[i][1] == theMatrix[i][2]){
+            if(inputChar == 'X'){
+                return 1;
+            }else{
+                return 2;
+            }
+
+        }
+    }
+
+    for(int i = 0; i < theMatrix.size(); ++i){
+        if(theMatrix[0][i] == theMatrix[1][i] && theMatrix[1][i] == theMatrix[2][i]){
+            if(inputChar == 'X'){
+                return 1;
+            }else{
+                return 2;
+            }
+
+        }
+    }
+
+    if( theMatrix[0][0] == inputChar && theMatrix[1][1] == inputChar && theMatrix[2][2] == inputChar ){
+
+        if(inputChar == 'X'){
+            return 1;
+        }else{
+            return 2;
+        }
+
+    }else if( theMatrix[0][2]  == inputChar && theMatrix[1][1]  == inputChar && theMatrix[2][0] == inputChar ){
+
+        if(inputChar == 'X'){
+            return 1;
+        }else{
+            return 2;
+        }
+
+    }else{
+
+        return 0;
+
+    }
+
     //Check Tie
     for(int i = 0; i < theMatrix.size(); ++i){
         for(int j = 0; j < theMatrix.size(); ++j){
@@ -139,53 +184,6 @@ int isWinner( vector<vector<char>> theMatrix, char inputChar ){
     if(avaliablePositions.size() < 1){
         return 3;
     }
-
-    cout << "entering winner\n";
-
-    for(int i = 0; i < theMatrix.size(); ++i){
-        if(theMatrix[i][0] == theMatrix[i][1] && theMatrix[i][1] == theMatrix[i][2]){
-            if(inputChar = 'X'){
-                return 1;
-            }else{
-                return 2;
-            }
-
-        }
-    }
-
-    for(int i = 0; i < theMatrix.size(); ++i){
-        if(theMatrix[0][i] == theMatrix[1][i] && theMatrix[1][i] == theMatrix[2][i]){
-            if(inputChar = 'X'){
-                return 1;
-            }else{
-                return 2;
-            }
-
-        }
-    }
-
-    if( theMatrix[0][0] == inputChar && theMatrix[1][1] == inputChar && theMatrix[2][2] == inputChar ){
-        
-        if(inputChar = 'X'){
-            return 1;
-        }else{
-            return 2;
-        }
-
-    }else if( theMatrix[0][2]  == inputChar && theMatrix[1][1]  == inputChar && theMatrix[2][0] == inputChar ){
-
-        if(inputChar = 'X'){
-            return 1;
-        }else{
-            return 2;
-        }
-
-    }else{
-
-        return 0;
-
-    }
-
 
 }
 
@@ -290,6 +288,7 @@ int main(){
                     break;
             }
 
+            
             //computer makes change
             gameBoard = computerRandom( gameBoard, inputO );
 
@@ -324,16 +323,73 @@ int main(){
 
 
     }else if(easyOrHard == 'H'){
+
+        cout << "\n\nHARD MODE\n\n";
+        gameBoard[0][0] = 'O';
+
         while(gameFlag){
 
+            //print board
             printBoard(gameBoard);
 
+            //get user input and apply change
+            gameBoard = getUserInput( gameBoard, inputX );
 
+            //check if there is a row
+            winner = isWinner(gameBoard, inputX);
 
+            switch (winner){
+                case 1:
+                    cout << "\nX wins!";
+                    printBoard(gameBoard);
+                    cout << "Game over!";
+                    gameFlag = false;
+                    break;
+                case 2:
+                    cout << "\nO wins!";
+                    printBoard(gameBoard);
+                    cout << "Game over!";
+                    gameFlag = false;
+                    break;
+                case 3:
+                    cout << "\nTie Game?! HOW!";
+                    printBoard(gameBoard);
+                    cout << "Game over!";
+                    gameFlag = false;
+                    break;
+                default:
+                    break;
+            }
 
+            
+            //computer makes change
+            gameBoard = computerRandom( gameBoard, inputO );
 
+            //check if there is a row
+            winner = isWinner(gameBoard, inputO);
 
-            gameFlag = false;
+            switch (winner){
+                case 1:
+                    cout << "\nX wins!";
+                    printBoard(gameBoard);
+                    cout << "Game over!";
+                    gameFlag = false;
+                    break;
+                case 2:
+                    cout << "\nO wins!";
+                    printBoard(gameBoard);
+                    cout << "Game over!";
+                    gameFlag = false;
+                    break;
+                case 3:
+                    cout << "\nTie Game?! HOW!";
+                    printBoard(gameBoard);
+                    cout << "Game over!";
+                    gameFlag = false;
+                    break;
+                default:
+                    break;
+            }
 
         }
     }else{
