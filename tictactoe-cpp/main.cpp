@@ -2,6 +2,7 @@
 #include <vector>
 #include <cctype>
 #include <stdlib.h> 
+#include <limits>
 using namespace std;
 
 //Functions
@@ -187,46 +188,73 @@ int isWinner( vector<vector<char>> theMatrix, char inputChar ){
 
 }
 
-vector<vector<char>> computerMinMax(vector<vector<char>> theMatrix, char inputChar){
 
-    int x = 0;
-    int y = 0;
-    int score = 0;
-    int bestScore = -100;
+vector<vector<char>>findBestMove(vector<vector<char>> board, char inputChar)
+{
 
-    char tempChar = ' ';
+    pair<int, int> bestMove = {-1, -1};
+    char placeHolder = ' ';
+    int bestScore = numeric_limits<int>::min();
 
-    for(int i = 0; i < theMatrix.size(); ++i){
-        for(int j = 0; i <theMatrix.size(); ++i){
-            if(theMatrix[i][j] != 'X' || theMatrix[i][j] != 'O'){
-
-                tempChar = theMatrix[i][j];
-                theMatrix[i][j] = inputChar;
-                //score = minMax(theMatrix, 0, true);
-                theMatrix[i][j] = tempChar;
-
-                if( score > bestScore){
-                    x = i;
-                    y = j;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (board[i][j] =! 'X' || board[i][j] != 'O') {
+                placeHolder = board[i][j];
+                board[i][j] = inputChar;
+                int score = minimax(board, 'O', 0);
+                board[i][j] = placeHolder;
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = {i, j};
                 }
-
-
             }
         }
     }
 
-    //SET THE BEST MOVE HERE xdxdxd
-
-
-
-    return theMatrix;
+    board[ bestMove.first ][ bestMove.second ] = inputChar;
+    return board;
 }
 
-int minMax(vector<vector<char>> theMatrix, int depth, bool maxThisPlayer){
+int minimax(std::vector<std::vector<char>>& board, char player, int depth)
+{
+    // Check if the game is over
+    char winner = checkWinner(board);
+    if (winner == COMPUTER_PLAYER) {
+        return 10 - depth;
+    } else if (winner == HUMAN_PLAYER) {
+        return depth - 10;
+    } else if (isBoardFull(board)) {
+        return 0;
+    }
 
-
-
-
+    // Recursively call minimax on all possible moves
+    int bestScore;
+    if (player == COMPUTER_PLAYER) {
+        bestScore = std::numeric_limits<int>::min();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == EMPTY_CELL) {
+                    board[i][j] = COMPUTER_PLAYER;
+                    int score = minimax(board, HUMAN_PLAYER, depth + 1);
+                    board[i][j] = EMPTY_CELL;
+                    bestScore = std::max(bestScore, score);
+                }
+            }
+        }
+    } else {
+        bestScore = std::numeric_limits<int>::max();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == EMPTY_CELL) {
+                    board[i][j] = HUMAN_PLAYER;
+                    int score = minimax(board, COMPUTER_PLAYER, depth + 1);
+                    board[i][j] = EMPTY_CELL;
+                    bestScore = std::min(bestScore, score);
+                }
+            }
+        }
+    }
+    return bestScore;
 }
 
 //Main
