@@ -12,18 +12,55 @@ fn main() {
 
     let player = 'X';
     let computer = 'O';
-
+    let mut turn: bool = false;
 
     loop {
+        // Print current board
+        display_board(&board);
+        
+        // Check if game is over
+        if is_winner(&board, 'X') {
+            println!("Congrats player, you win!\n");
+            break;
+        } else if is_winner(&board, 'O') {
+            println!("Congrats computer, you win!\n");
+            break;
+        } else if is_tie(&board) {
+            println!("Darn a tie!\n");
+            break;
+        }
+        
+        // Player turn
+        if turn {
 
-        println!("WELCOME TO HARD MODE TIC TAC TOE");
-        display_board(&board);
-        let mut user_move = get_user_move(&board);  
-        board[user_move.0 as usize][user_move.1 as usize] = 'X';
-        display_board(&board);
+            // Get player move
+            let user_move = get_user_move(&board);  
+
+            // Update board
+            board[user_move.0 as usize][user_move.1 as usize] = player;
+            
+            // Switch to computer turn
+            turn = false;
+
+        } else {
+
+            // Get player move
+            let computer_move = get_computer_move(&board);  
+
+            // Update board
+            board[computer_move.0 as usize][computer_move.1 as usize] = computer;
+            
+            // Switch to computer turn
+            turn = true;
+
+        }
+
+        println!("\n");
 
     }
 
+    // Game over
+    display_board(&board);
 
 }
 
@@ -103,4 +140,91 @@ fn is_tie(board: &[[char; 3]; 3]) -> bool{
     }
 
     return true;
+}
+
+fn get_computer_move( board: &[[char; 3]; 3] ) -> (i32, i32){
+    let mut row: i32 = -1;
+    let mut col: i32 = -1;
+
+    let mut best_score: i32 = -1000;
+    let mut score: i32;
+
+    let mut temp_board: [[char; 3]; 3] = board.clone();
+
+
+
+    for i in 0..3{
+        for j in 0..3{
+            if board[i][j] == ' '{
+
+                //Make a move if cell is empty
+                temp_board[i][j] = 'O';
+                score = min_max(&temp_board, 0, false, 'O' );
+                
+                if score > best_score {
+                    row = i as i32;
+                    col = j as i32;
+                    best_score = score;
+                }
+
+            }
+        }
+    }
+
+
+
+    return (row, col);
+}
+
+fn min_max(board: &[[char; 3]; 3], depth: i32, is_maxing: bool, symbol: char ) -> i32 {
+
+
+    let mut best_score: i32 = -1000;
+    let mut score: i32 = 0;
+    let mut temp_board: [[char; 3]; 3] = board.clone();
+
+    if is_winner(board, 'O') {
+        return 10 - depth;
+    } else if is_winner(board, 'X'){
+        return depth - 10;
+    } else if is_tie(board){
+        return 0;
+    }
+
+
+    if is_maxing {
+
+        for i in 0..3{
+            for j in 0..3{
+                if board[i][j] == ' '{
+
+                    temp_board[i][j] = symbol;
+                    score = min_max(&temp_board, depth + 1, false, 'X' );
+                    best_score = std::cmp::max(score, best_score);
+
+                }
+            }
+        }
+
+        return best_score;
+
+    } else {
+        best_score = 1000;
+
+        for i in 0..3{
+            for j in 0..3{
+                if board[i][j] == ' '{
+
+                    temp_board[i][j] = symbol;
+                    min_max(&temp_board, depth +1 , true, 'O' );
+                    best_score = std::cmp::min(score, best_score);
+    
+                }
+            }
+        }
+
+        return best_score;
+
+    }
+
 }
